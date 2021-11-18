@@ -12,8 +12,13 @@ class ContatoApplication : Application () {
     // impedindo que outras classes o façam e sejam forçadas a usarem
     // este objeto
 
+    companion object {
+        lateinit var instance : ContatoApplication
+    }
+
     override fun onCreate() {
         super.onCreate()
+        instance = this
         helperDB = HelperDB(this)
     }
 

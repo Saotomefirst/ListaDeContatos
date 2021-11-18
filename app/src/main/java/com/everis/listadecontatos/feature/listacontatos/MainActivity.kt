@@ -5,12 +5,14 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.everis.listadecontatos.R
+import com.everis.listadecontatos.application.ContatoApplication
 import com.everis.listadecontatos.bases.BaseActivity
 import com.everis.listadecontatos.feature.contato.ContatoActivity
 import com.everis.listadecontatos.feature.listacontatos.adapter.ContatoAdapter
 import com.everis.listadecontatos.feature.listacontatos.model.ContatosVO
 import com.everis.listadecontatos.singleton.ContatoSingleton
 import kotlinx.android.synthetic.main.activity_main.*
+import java.lang.Exception
 
 
 class MainActivity : BaseActivity() {
@@ -45,7 +47,7 @@ class MainActivity : BaseActivity() {
 
     override fun onResume() {
         super.onResume()
-        adapter?.notifyDataSetChanged()
+        onClickBuscar()
     }
 
     private fun onClickAdd(){
@@ -61,14 +63,12 @@ class MainActivity : BaseActivity() {
 
     private fun onClickBuscar(){
         val busca = etBuscar.text.toString()
-        var listaFiltrada: List<ContatosVO> = ContatoSingleton.lista
-        if(!busca.isNullOrEmpty()){
-            listaFiltrada = ContatoSingleton.lista.filter { contato ->
-                if (contato.nome.toLowerCase().contains(busca.toLowerCase())){
-                    return@filter true
-                }
-                return@filter false
-            }
+        var listaFiltrada: List<ContatosVO> = mutableListOf <ContatosVO>();
+        try{
+            listaFiltrada = ContatoApplication.instance.helperDB?.buscarContatos(busca) ?: mutableListOf <ContatosVO>();
+        }
+        catch (ex: Exception) {
+            ex.printStackTrace()
         }
         adapter = ContatoAdapter(this,listaFiltrada) {onClickItemRecyclerView(it)}
         recyclerView.adapter = adapter
