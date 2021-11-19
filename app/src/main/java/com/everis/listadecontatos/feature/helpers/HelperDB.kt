@@ -4,9 +4,7 @@ import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
-import androidx.core.content.contentValuesOf
 import com.everis.listadecontatos.feature.listacontatos.model.ContatosVO
-import com.google.android.material.tabs.TabLayout
 
 class HelperDB(
     context: Context
@@ -44,7 +42,7 @@ class HelperDB(
         }
     }
 
-    fun buscarContatos (busca: String) : List <ContatosVO> {
+    fun buscarContatos (busca: String, isBuscaPorID: Boolean = false) : List <ContatosVO> {
         // Note que sempre que se faz uso do banco de dados consideramos a possibilidade
         // de a resposta ser nula
         val db = readableDatabase ?: return mutableListOf <ContatosVO>();
@@ -54,10 +52,21 @@ class HelperDB(
 //        var buscaComPercentual = "%$busca%"
 //        var cursor = db.rawQuery(sql, arrayOf(buscaComPercentual)) ?: return mutableListOf <ContatosVO>()
 
-        //Busca com SQL implicito
-        var where = "$COLUMNS_NOME LIKE ?"
-        var buscaComPercentual = arrayOf("%$busca%")
-        var cursor = db.query(TABLE_NAME, null,where, buscaComPercentual,null, null, null)
+        var where: String? = null
+        var argumentosDeBusca: Array<String> = arrayOf()
+        if (isBuscaPorID == true) {
+            where = "$COLUMNS_ID = ?"
+            argumentosDeBusca = arrayOf("$busca")
+        }
+        else {
+            //Busca com SQL implicito
+            where = "$COLUMNS_NOME LIKE ?"
+            argumentosDeBusca = arrayOf("%$busca%")
+        }
+
+
+
+        var cursor = db.query(TABLE_NAME, null,where, argumentosDeBusca,null, null, null)
 
         if (cursor == null) {
             db.close()
