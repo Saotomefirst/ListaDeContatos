@@ -88,7 +88,7 @@ class HelperDB(
         val db = writableDatabase ?: return
         //Maneira Preferida de se fazer inserts, SQL visivel
 //        val sql = "INSERT INTO $TABLE_NAME ($COLUMNS_NOME, $COLUMNS_TELEFONE) VALUES (?,?)"
-//        var array = arrayOf(contato.nome, contato.telefone)
+//        val array = arrayOf(contato.nome, contato.telefone)
 //        db.execSQL(sql,array)
 
         // Outra maneira de se fazer, SQL suprimido
@@ -97,6 +97,35 @@ class HelperDB(
         content.put(COLUMNS_TELEFONE, contato.telefone)
         db.insert(TABLE_NAME, null, content)
 
+        db.close()
+    }
+
+    fun deletarContato(id: Int){
+        val db = writableDatabase ?: return
+        val array = arrayOf<String>("$id")
+        // SQL implicito
+//        val where = "id = ?"
+//        db.delete(TABLE_NAME, where, array)
+        //SQL explicito
+        val sql = "DELETE FROM $TABLE_NAME WHERE id = ?"
+        db.execSQL(sql, array)
+        db.close()
+    }
+
+    fun updateContato(contato: ContatosVO) {
+        val db = writableDatabase ?: return
+
+        //SQL Implicito
+//        val content = ContentValues()
+//        content.put(COLUMNS_NOME, contato.nome)
+//        content.put(COLUMNS_TELEFONE, contato.telefone)
+//        val where = "id = ?"
+//        val array = arrayOf<String>("${contato.id}")
+//        db.update(TABLE_NAME,content, where, array)
+        // SQL explícito
+        val sql = "UPDATE $TABLE_NAME SET $COLUMNS_NOME = ?, $COLUMNS_TELEFONE = ? WHERE $COLUMNS_ID = ?"
+        val array = arrayOf(contato.nome,contato.telefone,contato.id)
+        db.execSQL(sql, array)
         db.close()
     }
 
