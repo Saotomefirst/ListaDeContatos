@@ -27,10 +27,19 @@ class ContatoActivity : BaseActivity() {
             btnExcluirContato.visibility = View.GONE
             return
         }
-        var lista = ContatoApplication.instance.helperDB?.buscarContatos("$idContato", true) ?: return
-        var contato = lista.getOrNull(0) ?: return
-        etNome.setText(contato.nome)
-        etTelefone.setText(contato.telefone)
+        progress.visibility = View.VISIBLE
+        Thread(Runnable {
+            Thread.sleep(1000)
+            // Nota: se algum dos códigos falhares, sinalizamos return@Runnable para parar a thread
+            var lista = ContatoApplication.instance.helperDB?.buscarContatos("$idContato", true) ?: return@Runnable
+            var contato = lista.getOrNull(0) ?: return@Runnable
+            runOnUiThread{
+                etNome.setText(contato.nome)
+                etTelefone.setText(contato.telefone)
+                progress.visibility = View.GONE
+            }
+        }).start()
+
     }
 
     private fun onClickSalvarContato(){
@@ -41,18 +50,33 @@ class ContatoActivity : BaseActivity() {
             nome,
             telefone
         )
-        if(idContato == -1) {
-            ContatoApplication.instance.helperDB?.salvarContato(contato) ?: finish()
-        }else{
-            ContatoApplication.instance.helperDB?.updateContato(contato) ?: finish()
-        }
-        finish()
+        progress.visibility = View.VISIBLE
+        Thread(Runnable {
+            Thread.sleep(1000)
+            if(idContato == -1) {
+                ContatoApplication.instance.helperDB?.salvarContato(contato)
+            }else{
+                ContatoApplication.instance.helperDB?.updateContato(contato)
+            }
+            runOnUiThread {
+                finish()
+                progress.visibility = View.GONE
+            }
+
+        }).start()
     }
 
     fun onClickExcluirContato(view: View) {
-        if(idContato > -1){
-            ContatoApplication.instance.helperDB?.deletarContato(idContato)
-            finish()
-        }
+        progress.visibility = View.VISIBLE
+        Thread(Runnable {
+            Thread.sleep(1000)
+            if (idContato > -1) {
+                ContatoApplication.instance.helperDB?.deletarContato(idContato)
+                runOnUiThread {
+                    finish()
+                    progress.visibility = View.GONE
+                }
+            }
+        }).start()
     }
 }
